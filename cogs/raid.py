@@ -136,7 +136,8 @@ class raidView(View):
                 self.sql.profileChange('`raids_hosted` = raids_hosted +1', str(self.author))
 
                 for singlePart in self.participants:
-                    participantPrint += f"{singlePart}\n"
+                    embedPart = self.sql.getProfile(singlePart) 
+                    participantPrint += f"{embedPart['ingame_name']}\n"
 
                 raidStartEmbed = discord.Embed(
                     title=self.pokemonData["id"].capitalize(),
