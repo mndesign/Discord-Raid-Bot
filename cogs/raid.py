@@ -29,8 +29,10 @@ class Raid(commands.GroupCog, name="raid"):
         app_commands.Choice(name="Attack", value="Attack"),
         app_commands.Choice(name="Burn", value="Burn"),
         app_commands.Choice(name="Chill", value="Chill"),
+        app_commands.Choice(name="Dawn", value="Dawn"),
         app_commands.Choice(name="Defense", value="Defense"),
         app_commands.Choice(name="Douse", value="Douse"),
+        app_commands.Choice(name="Dusk", value="Dusk"),
         app_commands.Choice(name="Galarian", value="Galarian"),
         app_commands.Choice(name="Gigantamax", value="Gigantamax"),
         app_commands.Choice(name="Hisuian", value="Hisuian"),
@@ -103,7 +105,7 @@ class raidView(View):
     async def join_callback(self, interaction, button):
         user_check = self.sql.getProfile( interaction.user.id)
         if user_check:
-            if interaction.user not in self.participants:
+            if interaction.user.id not in self.participants:
                 self.participants_nr += 1
                 self.participants.append(interaction.user.id)
                 button.label=f"Join ({self.participants_nr})"
@@ -115,9 +117,9 @@ class raidView(View):
         
     @discord.ui.button(label="Leave", style=discord.ButtonStyle.danger, custom_id="dropout")
     async def dropout_callback(self, interaction, button):
-        if interaction.user in self.participants:
+        if interaction.user.id in self.participants:
             self.participants_nr -= 1
-            self.participants.remove(interaction.user)
+            self.participants.remove(interaction.user.id)
 
             join = [x for x in self.children if x.custom_id=="join"][0]
             join.label=f"Join ({self.participants_nr})"
@@ -137,7 +139,7 @@ class raidView(View):
 
                 for singlePart in self.participants:
                     embedPart = self.sql.getProfile(singlePart) 
-                    participantPrint += f"{embedPart['ingame_name']}\n"
+                    participantPrint += f"{embedPart[0][0]}\n"
 
                 raidStartEmbed = discord.Embed(
                     title=self.pokemonData["id"].capitalize(),
@@ -151,6 +153,7 @@ class raidView(View):
                 raidStartEmbed.set_footer(text=f"Added by {self.username}" )
                 await interaction.response.edit_message(content=None, embed=raidStartEmbed, view=None)
                 embedParticipants = self.sql.startRaid(self.participants)
+
                 
                 for singleJoined in embedParticipants:
                     self.joined += str(singleJoined[1][0:7])
